@@ -2,17 +2,26 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using OrderManagementSystem.Application.Abstractions;
+using OrderManagementSystem.Application.Account.Commands.Register;
 using OrderManagementSystem.Application.Common.Behaviors;
 using OrderManagementSystem.Application.RepositoryContract;
+using OrderManagementSystem.Application.Setting;
 using OrderManagementSystem.Application.UnitOfWorkContract;
 using OrderManagementSystem.Domain.Models;
 using OrderManagementSystem.Infrastructure.Context;
 using OrderManagementSystem.Infrastructure.RepositoryImplementation;
+using OrderManagementSystem.Infrastructure.Services;
 using OrderManagementSystem.Infrastructure.UnitOfWorkImplementation;
 using OrderManagementSystem.Web.Seed;
 using Serilog;
+using System.Security.Claims;
+using System.Text;
 
 namespace OrderManagementSystem.Web
 {
@@ -28,7 +37,6 @@ namespace OrderManagementSystem.Web
             });
 
             builder.Services.AddControllers();
-            builder.Services.AddOpenApi();
 
             builder.Services.AddDbContext<ApplicationContext>(option =>
             {
@@ -41,13 +49,80 @@ namespace OrderManagementSystem.Web
                         LogLevel.Information);
                 }
             });
+            builder.Services.AddSwaggerGen(swagger =>
+            {
+                swagger.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Order Management System API",
+                    Description = "A RESTful API for managing customer orders"
+                });
+
+                swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter 'Bearer' [space] and then your token in the text input below\nExample: \"Bearer eyJhbGciOi...\""
+                });
+
+                swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
 
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
             .AddEntityFrameworkStores<ApplicationContext>()
             .AddDefaultTokenProviders();
 
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+
+           .AddJwtBearer(options =>
+           {
+               options.SaveToken = true;
+               options.RequireHttpsMetadata = false;
+               options.TokenValidationParameters = new TokenValidationParameters
+               {
+                   ValidateIssuer = true,
+                   ValidIssuer = builder.Configuration["JWT:Issuer"],
+                   ValidateAudience = true,
+                   ValidAudience = builder.Configuration["JWT:Audience"],
+                   ValidateLifetime = true,
+                   ValidateIssuerSigningKey = true,
+                   IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
+                   RoleClaimType = ClaimTypes.Role,
+               };
+           });
+
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddSingleton<ITokenService, TokenService>();
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
+
+
+            builder.Services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(typeof(RegisterHandler).Assembly);
+                cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            });
 
             builder.Services.AddFluentValidation();
             builder.Services.AddValidatorsFromAssembly(OrderManagementSystem.Application.AssemblyReference.Assembly, includeInternalTypes: true);
@@ -63,7 +138,8 @@ namespace OrderManagementSystem.Web
 
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
             app.UseHttpsRedirection();
