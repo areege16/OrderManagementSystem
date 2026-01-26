@@ -74,14 +74,14 @@ namespace OrderManagementSystem.Application.Account.Commands.Register
                     switch (registerRequest.Role.ToLower())
                     {
                         case "admin":
-                            var admin = new Admin { Id = user.Id };
-                            _unitOfWork.Repository<Admin>().Add(admin);
+                            var admin = new Domain.Models.Admin { Id = user.Id };
+                            _unitOfWork.Repository<Domain.Models.Admin>().Add(admin);
                             await _unitOfWork.SaveChangesAsync(cancellationToken);
                             break;
 
                         case "customer":
-                            var customer = new Customer { Id = user.Id };
-                            _unitOfWork.Repository<Customer>().Add(customer);
+                            var customer = new Domain.Models.Customer { Id = user.Id };
+                            _unitOfWork.Repository<Domain.Models.Customer>().Add(customer);
                             await _unitOfWork.SaveChangesAsync(cancellationToken);
                             break;
                     }

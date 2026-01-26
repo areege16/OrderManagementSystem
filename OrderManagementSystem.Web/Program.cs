@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OrderManagementSystem.Application.Abstractions;
 using OrderManagementSystem.Application.Account.Commands.Register;
+using OrderManagementSystem.Application.AutoMapperProfile;
 using OrderManagementSystem.Application.Common.Behaviors;
 using OrderManagementSystem.Application.RepositoryContract;
 using OrderManagementSystem.Application.Setting;
@@ -117,6 +118,7 @@ namespace OrderManagementSystem.Web
             builder.Services.AddSingleton<ITokenService, TokenService>();
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
 
+            builder.Services.AddAutoMapper(typeof(OrderManagementSystem_Profiler).Assembly);
 
             builder.Services.AddMediatR(cfg =>
             {
