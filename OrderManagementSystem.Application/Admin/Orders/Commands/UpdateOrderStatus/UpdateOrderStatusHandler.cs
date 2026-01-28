@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderManagementSystem.Application.Abstractions;
 using OrderManagementSystem.Application.Common.Responses;
@@ -13,14 +14,17 @@ namespace OrderManagementSystem.Application.Admin.Orders.Commands.UpdateOrderSta
         private readonly ILogger<UpdateOrderStatusHandler> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderStatusValidationService _orderStatusValidationService;
+        private readonly IEmailService _emailService;
 
         public UpdateOrderStatusHandler(ILogger<UpdateOrderStatusHandler> logger,
                                         IUnitOfWork unitOfWork,
-                                        IOrderStatusValidationService orderStatusValidationService)
+                                        IOrderStatusValidationService orderStatusValidationService,
+                                        IEmailService emailService)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
             _orderStatusValidationService = orderStatusValidationService;
+            _emailService = emailService;
         }
         public async Task<ResponseDto<bool>> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
         {
@@ -29,7 +33,11 @@ namespace OrderManagementSystem.Application.Admin.Orders.Commands.UpdateOrderSta
 
             try
             {
-                var order = await orderRepository.GetByIdAsync(updatedOrderStatusRequest.OrderId, cancellationToken);
+                var order = await orderRepository
+                     .GetFiltered(o => o.Id == updatedOrderStatusRequest.OrderId ,asTracking : true)
+                     .Include(o => o.Customer)
+                         .ThenInclude(c => c.ApplicationUser)
+                     .FirstOrDefaultAsync(cancellationToken);
 
                 if (order == null)
                 {
@@ -55,9 +63,27 @@ namespace OrderManagementSystem.Application.Admin.Orders.Commands.UpdateOrderSta
                 order.UpdatedAt = DateTimeOffset.UtcNow;
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-
                 _logger.LogInformation("Status updated successfully for order '{OrderId}'. Previous: {OldStatus}, New: {NewStatus}", order.Id, oldStatus, order.OrderStatus);
-                return ResponseDto<bool>.Success(true, "Order status updated successfully.");
+
+                try
+                {
+                    var customerEmail = order.Customer.ApplicationUser.Email;
+                    var customerName = order.Customer.ApplicationUser.Name ?? "Customer";
+
+                    await _emailService.SendOrderStatusEmailAsync(
+                        toEmail:customerEmail,    
+                        toName:customerName,
+                        orderNumber: order.Id.ToString(),
+                        newStatus: updatedOrderStatusRequest.OrderStatus.ToString()
+                    );
+                    _logger.LogInformation("Order status email sent to {CustomerEmail} for order {OrderId}", customerEmail, order.Id);
+                }
+                catch (Exception emailEx)
+                {
+                    _logger.LogWarning(emailEx, "Failed to send email notification for order {OrderId}, but status was updated successfully.", order.Id);
+                }
+
+                return ResponseDto<bool>.Success(true, $"Order status updated from {oldStatus} to {updatedOrderStatusRequest.OrderStatus}.");
             }
             catch (Exception ex)
             {

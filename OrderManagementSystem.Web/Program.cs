@@ -118,6 +118,9 @@ namespace OrderManagementSystem.Web
             builder.Services.AddScoped<IOrderStatusValidationService, OrderStatusValidationService>();
             builder.Services.AddSingleton<ITokenService, TokenService>();
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
+            builder.Services.AddScoped<IEmailService, MailKitEmailService>();
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
 
             builder.Services.AddAutoMapper(typeof(OrderManagementSystem_Profiler).Assembly);
 
