@@ -22,6 +22,8 @@ namespace OrderManagementSystem.Application.Customer.Orders.Commands.CreateOrder
         {
             var orderRepository = _unitOfWork.Repository<Order>();
             var productRepository = _unitOfWork.Repository<Product>();
+            var invoiceRepository = _unitOfWork.Repository<Invoice>();
+
             var createOrderRequest = request.CreateOrderDto;
             try
             {
@@ -87,6 +89,16 @@ namespace OrderManagementSystem.Application.Customer.Orders.Commands.CreateOrder
                 };
 
                 orderRepository.Add(order);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                var invoice = new Invoice
+                {
+                    OrderId = order.Id,
+                    InvoiceDate = DateTimeOffset.UtcNow,
+                    TotalAmount = order.TotalAmount
+                };
+
+                invoiceRepository.Add(invoice);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return ResponseDto<bool>.Success(true, "Order Create successfully.");

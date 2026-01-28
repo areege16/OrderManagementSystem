@@ -15,6 +15,7 @@ namespace OrderManagementSystem.Domain.Models
         [ForeignKey("Customer")]
         public string CustomerId { get; set; }
         public Customer Customer { get; set; }
+        public Invoice? Invoice { get; set; }
         public ICollection<OrderItem>? OrderItems { get; set; }
     }
 }

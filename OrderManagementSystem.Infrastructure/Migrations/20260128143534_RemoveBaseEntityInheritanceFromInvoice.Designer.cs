@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OrderManagementSystem.Infrastructure.Context;
 
@@ -11,9 +12,11 @@ using OrderManagementSystem.Infrastructure.Context;
 namespace OrderManagementSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260128143534_RemoveBaseEntityInheritanceFromInvoice")]
+    partial class RemoveBaseEntityInheritanceFromInvoice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -284,8 +287,7 @@ namespace OrderManagementSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId")
-                        .IsUnique();
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Invoices");
                 });
@@ -468,8 +470,8 @@ namespace OrderManagementSystem.Infrastructure.Migrations
             modelBuilder.Entity("OrderManagementSystem.Domain.Models.Invoice", b =>
                 {
                     b.HasOne("OrderManagementSystem.Domain.Models.Order", "Order")
-                        .WithOne("Invoice")
-                        .HasForeignKey("OrderManagementSystem.Domain.Models.Invoice", "OrderId")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -520,8 +522,6 @@ namespace OrderManagementSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("OrderManagementSystem.Domain.Models.Order", b =>
                 {
-                    b.Navigation("Invoice");
-
                     b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618

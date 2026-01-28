@@ -1,4 +1,5 @@
-﻿using OrderManagementSystem.Domain.Enums;
+﻿using OrderManagementSystem.Application.DTOs.Invoice.Customer;
+using OrderManagementSystem.Domain.Enums;
 
 namespace OrderManagementSystem.Application.DTOs.Order.Customer
 {
@@ -10,5 +11,6 @@ namespace OrderManagementSystem.Application.DTOs.Order.Customer
         public PaymentMethod PaymentMethod { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public ICollection<OrderItemDto> OrderItems { get; set; } = [];
+        public CustomerInvoiceSummaryDto? Invoice { get; set; }
     }
 }

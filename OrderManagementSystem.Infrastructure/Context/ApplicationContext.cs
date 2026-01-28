@@ -56,6 +56,12 @@ namespace OrderManagementSystem.Infrastructure.Context
             modelBuilder.Entity<OrderItem>()
                 .HasIndex(oi => oi.ProductId);
 
+            modelBuilder.Entity<Invoice>()
+              .HasOne(i => i.Order)
+              .WithOne(o => o.Invoice)
+              .HasForeignKey<Invoice>(i => i.OrderId)
+              .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(modelBuilder);
         }
     }

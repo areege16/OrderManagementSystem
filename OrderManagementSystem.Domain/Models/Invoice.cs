@@ -1,9 +1,8 @@
-﻿using OrderManagementSystem.Domain.Models.Base;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OrderManagementSystem.Domain.Models
 {
-    public class Invoice : BaseEntity
+    public class Invoice
     {
         public int Id { get; set; }
         public decimal TotalAmount { get; set; }
