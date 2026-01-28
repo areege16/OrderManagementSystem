@@ -15,8 +15,8 @@ namespace OrderManagementSystem.Application.Admin.Products.Commands.CreateProduc
         private readonly IMapper _mapper;
 
         public CreateProductHandler(ILogger<CreateProductHandler> logger,
-                                     IUnitOfWork unitOfWork,
-                                     IMapper mapper)
+                                    IUnitOfWork unitOfWork,
+                                    IMapper mapper)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;

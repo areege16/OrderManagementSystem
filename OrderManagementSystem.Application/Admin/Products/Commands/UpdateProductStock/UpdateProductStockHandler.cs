@@ -11,9 +11,7 @@ namespace OrderManagementSystem.Application.Admin.Products.Commands.UpdateProduc
     {
         private readonly ILogger<UpdateProductStockHandler> _logger;
         private readonly IUnitOfWork _unitOfWork;
-
         public UpdateProductStockHandler(ILogger<UpdateProductStockHandler> logger, IUnitOfWork unitOfWork)
-
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
@@ -30,6 +28,11 @@ namespace OrderManagementSystem.Application.Admin.Products.Commands.UpdateProduc
                 {
                     _logger.LogWarning("Admin attempted to update stock for non-existent product {ProductId}", updatedProductStockRequest.Id);
                     return ResponseDto<bool>.Error(ErrorCode.NotFound, $"Product with ID {updatedProductStockRequest.Id} not found. Stock update failed.");
+                }
+
+                if (product.Stock == updatedProductStockRequest.Stock)
+                {
+                    return ResponseDto<bool>.Success(true, "Product stock is already up to date.");
                 }
 
                 var oldStock = product.Stock;

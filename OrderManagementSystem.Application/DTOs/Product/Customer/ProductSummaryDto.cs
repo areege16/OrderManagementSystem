@@ -1,6 +1,6 @@
 ﻿namespace OrderManagementSystem.Application.DTOs.Product.Customer
 {
-    public class GetAllProductsDto
+    public class ProductSummaryDto
     {
         public int Id { get; set; }
         public string Name { get; set; }

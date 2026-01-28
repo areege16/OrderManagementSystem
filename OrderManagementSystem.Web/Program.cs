@@ -115,6 +115,7 @@ namespace OrderManagementSystem.Web
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IOrderStatusValidationService, OrderStatusValidationService>();
             builder.Services.AddSingleton<ITokenService, TokenService>();
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
 

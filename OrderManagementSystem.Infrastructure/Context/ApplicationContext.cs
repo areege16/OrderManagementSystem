@@ -48,7 +48,7 @@ namespace OrderManagementSystem.Infrastructure.Context
 
             modelBuilder.Entity<OrderItem>()
                 .Property(oi => oi.Discount)
-                .HasPrecision(5, 4);
+                .HasPrecision(6, 4);
 
             modelBuilder.Entity<Order>()
                 .HasIndex(o => o.CustomerId);

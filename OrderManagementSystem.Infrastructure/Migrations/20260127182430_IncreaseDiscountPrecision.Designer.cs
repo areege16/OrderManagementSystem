@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OrderManagementSystem.Infrastructure.Context;
 
@@ -11,9 +12,11 @@ using OrderManagementSystem.Infrastructure.Context;
 namespace OrderManagementSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260127182430_IncreaseDiscountPrecision")]
+    partial class IncreaseDiscountPrecision
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -144,7 +147,7 @@ namespace OrderManagementSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Admins", (string)null);
+                    b.ToTable("Admins");
                 });
 
             modelBuilder.Entity("OrderManagementSystem.Domain.Models.ApplicationRole", b =>
@@ -261,7 +264,7 @@ namespace OrderManagementSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("OrderManagementSystem.Domain.Models.Invoice", b =>
@@ -295,7 +298,7 @@ namespace OrderManagementSystem.Infrastructure.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Invoices", (string)null);
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("OrderManagementSystem.Domain.Models.Order", b =>
@@ -338,7 +341,7 @@ namespace OrderManagementSystem.Infrastructure.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("OrderManagementSystem.Domain.Models.OrderItem", b =>
@@ -364,7 +367,7 @@ namespace OrderManagementSystem.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("OrderManagementSystem.Domain.Models.Product", b =>
@@ -397,7 +400,7 @@ namespace OrderManagementSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
